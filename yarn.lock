@@ -189,17 +189,10 @@
     vite "^2.9.13"
     webpack-merge "^5.8.0"
 
-"@quasar/extras@^1.13.0", "@quasar/extras@^1.16.4":
+"@quasar/extras@^1.16.4":
   version "1.16.12"
   resolved "https://registry.npmmirror.com/@quasar/extras/-/extras-1.16.12.tgz#2dac82eac8bb6b069a677d2817e479261d51f234"
   integrity sha512-hLlb3Buxo38Xg/2w0BTkz98RBh/VH8apZ2r6Fl8YpPgrVQ0diHyN/BVTvIOk5Kch2y38L2kvwOIddsB2UcCuIg==
-
-"@quasar/quasar-ui-qmediaplayer@^2.0.0-beta.6":
-  version "2.0.0-beta.6"
-  resolved "https://registry.npmmirror.com/@quasar/quasar-ui-qmediaplayer/-/quasar-ui-qmediaplayer-2.0.0-beta.6.tgz#9b29e0b68ffe4575df682abd13e50392bc8a2361"
-  integrity sha512-j0Y6NCMkup/fjwpOT2kWPG+w3X1yVxmRaSHxQRtWLsWHjiSheaJLWKqZDJ9UarEKL8rtS/CUtadD+ENvcBEHHQ==
-  dependencies:
-    "@quasar/extras" "^1.13.0"
 
 "@quasar/render-ssr-error@^1.0.3":
   version "1.0.3"
