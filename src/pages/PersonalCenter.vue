@@ -48,167 +48,191 @@
     <q-tab name="favorites" label="收藏" icon="mdi-star" />
   </q-tabs>
 
-  <q-scroll-area style="height: calc(100vh - 280px); width: 100%;">
-    <q-tab-panels v-model="currentTab" animated class="bg-grey-2" swipeable>
-      <!-- 作品 -->
-      <q-tab-panel name="works" class="row q-gutter-x-md q-gutter-y-xl no-wrap">
-        <q-card v-for="(work, index) in details.works" :key="index" class="bg-grey-2" bordered>
-          <q-card-section horizontal>
-            <q-item clickable>
-              <q-img :src="work.coverUrl" fit="fill">
-                <template v-slot:loading>
-                  <q-spinner-dots color="primary" size="25px" />
-                </template>
-              </q-img>
-            </q-item>
-          </q-card-section>
 
-          <q-card-section class="bg-grey-2">
-            <q-item dense>
-              <q-item-section>
-                <q-item-label lines="1" class="text-center">
-                  {{ work.title }}
-                  <q-tooltip>{{ work.title }}</q-tooltip>
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-card-section>
+  <q-tab-panels v-model="currentTab" animated class="bg-grey-2" swipeable>
+    <!-- 作品 -->
+    <q-tab-panel name="works">
+      <q-scroll-area style="height: calc(99vh - 280px); width: 100%;">
+        <div class="row q-gutter-x-md q-gutter-y-xl">
+          <q-card v-for="(work, index) in details.works" :key="index" class="bg-grey-2" bordered>
+            <q-card-section horizontal>
+              <q-item clickable>
+                <q-img :src="work.coverUrl" fit="fill">
+                  <template v-slot:loading>
+                    <q-spinner-dots color="primary" size="25px" />
+                  </template>
+                </q-img>
+              </q-item>
+            </q-card-section>
 
-          <q-card-actions align="right" class="bg-grey-2" horizontal>
-            <q-btn flat label="编辑" color="primary" />
-            <q-btn flat label="删除" color="negative" />
-          </q-card-actions>
+            <q-card-section class="bg-grey-2">
+              <q-item dense>
+                <q-item-section>
+                  <q-item-label lines="1" class="text-center">
+                    {{ work.title }}
+                    <q-tooltip>{{ work.title }}</q-tooltip>
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-card-section>
 
-        </q-card>
-      </q-tab-panel>
+            <q-card-actions align="right" class="bg-grey-2" horizontal>
+              <q-btn flat label="编辑" color="primary" />
+              <q-btn flat label="删除" color="negative" />
+            </q-card-actions>
 
-      <!-- 历史记录 -->
-      <q-tab-panel name="histories" class="row q-gutter-x-md q-gutter-y-md no-wrap">
-        <q-card v-for="(history, index) in details.histories" :key="index" class="bg-grey-2" bordered>
-          <q-card-section horizontal>
-            <q-item clickable>
-              <q-img :src="history.coverUrl" fit="fill">
-                <template v-slot:loading>
-                  <q-spinner-dots color="primary" size="25px" />
-                </template>
-              </q-img>
-            </q-item>
-          </q-card-section>
+          </q-card>
+        </div>
+      </q-scroll-area>
+    </q-tab-panel>
 
-          <q-card-section class="bg-grey-2">
-            <q-item dense>
-              <q-item-section>
-                <q-item-label lines="1" class="text-center">
-                  {{ history.title }}
-                  <q-tooltip>{{ history.title }}</q-tooltip>
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-card-section>
-        </q-card>
-      </q-tab-panel>
+    <!-- 历史记录 -->
+    <q-tab-panel name="histories">
+      <q-scroll-area style="height: calc(100vh - 280px); width: 100%;">
+        <div class="row q-gutter-x-md q-gutter-y-md">
+          <q-card v-for="(history, index) in details.histories" :key="index" class="bg-grey-2" bordered>
+            <q-card-section horizontal>
+              <q-item clickable>
+                <q-img :src="history.coverUrl" fit="fill">
+                  <template v-slot:loading>
+                    <q-spinner-dots color="primary" size="25px" />
+                  </template>
+                </q-img>
+              </q-item>
+            </q-card-section>
 
-      <!-- 喜欢 -->
-      <q-tab-panel name="likes" class="row q-gutter-x-md q-gutter-y-md no-wrap">
-        <q-card v-for="(like, index) in details.likes" :key="index" class="bg-grey-2" bordered>
-          <q-card-section horizontal>
-            <q-item clickable>
-              <q-img :src="like.coverUrl" fit="fill">
-                <template v-slot:loading>
-                  <q-spinner-dots color="primary" size="25px" />
-                </template>
-              </q-img>
-              <q-btn class="absolute-bottom-right text-pink" :icon="like.isLike ? 'mdi-heart' : 'mdi-heart-outline'"
-                @click="handleClickLike(like.title, index)" flat>
-              </q-btn>
-            </q-item>
-          </q-card-section>
+            <q-card-section class="bg-grey-2">
+              <q-item dense>
+                <q-item-section>
+                  <q-item-label lines="1" class="text-center">
+                    {{ history.title }}
+                    <q-tooltip>{{ history.title }}</q-tooltip>
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-card-section>
+          </q-card>
+        </div>
+      </q-scroll-area>
+    </q-tab-panel>
 
-          <q-card-section class="bg-grey-2">
-            <q-item dense>
-              <q-item-section>
-                <q-item-label lines="1" class="text-center">
-                  {{ like.title }}
-                  <q-tooltip>{{ like.title }}</q-tooltip>
-                </q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-card-section>
-        </q-card>
-      </q-tab-panel>
+    <!-- 喜欢 -->
+    <q-tab-panel name="likes" class="row q-gutter-x-md q-gutter-y-md no-wrap">
+      <q-scroll-area style="height: calc(100vh - 280px); width: 100%;">
+        <div class="row q-gutter-x-md q-gutter-y-md">
+          <q-card v-for="(like, index) in details.likes" :key="index" class="bg-grey-2" bordered>
+            <q-card-section horizontal>
+              <q-item clickable>
+                <q-img :src="like.coverUrl" fit="fill">
+                  <template v-slot:loading>
+                    <q-spinner-dots color="primary" size="25px" />
+                  </template>
+                </q-img>
+                <q-btn class="absolute-bottom-right text-pink" :icon="like.isLike ? 'mdi-heart' : 'mdi-heart-outline'"
+                  @click="handleClickLike(like.videoId, index)" flat>
+                </q-btn>
+              </q-item>
+            </q-card-section>
 
-      <!-- 收藏 -->
-      <q-tab-panel name="favorites">
-        <!-- 左侧收藏夹列表区域 -->
-        <div class="row">
-          <div class="col-3">
-            <q-scroll-area class="favorite-folder shadow-3">
-              <q-list bordered class="bg-grey-1">
-                <!-- 列表项：收藏夹 -->
-                <q-item v-for="(folder, idx) in favoriteFolders" :key="folder.id" clickable
-                  class="bg-primary text-grey-3 shadow-4" @click="showFolderVideos(folder.name)">
-                  <q-item-section>{{ folder.name }}</q-item-section>
-                  <q-item-section side>
-                    <q-btn icon="mdi-delete" color="negative" flat @click.stop="deleteFolder(folder.id, folder.name)" />
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </q-scroll-area>
+            <q-card-section class="bg-grey-2">
+              <q-item dense>
+                <q-item-section>
+                  <q-item-label lines="1" class="text-center">
+                    {{ like.title }}
+                    <q-tooltip>{{ like.title }}</q-tooltip>
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-card-section>
+          </q-card>
+        </div>
+      </q-scroll-area>
+    </q-tab-panel>
 
-            <!-- 固定在底部的新增按钮 -->
-            <div class="q-pa-sm">
-              <q-btn color="primary" label="新增收藏夹" class="full-width" icon="add" @click="showFolderDialog = true" />
-            </div>
-          </div>
+    <!-- 收藏 -->
+    <q-tab-panel name="favorites">
+      <!-- 左侧收藏夹列表区域 -->
+      <div class="row">
+        <div class="col-3">
+          <q-scroll-area class="favorite-folder shadow-3">
+            <q-list bordered class="bg-grey-1">
+              <!-- 列表项：收藏夹 -->
+              <q-item v-for="(folder, idx) in favoriteFolders" :key="folder.id" clickable
+                class="bg-primary text-grey-3 shadow-4" @click="showFolderVideos(folder.name)">
+                <q-item-section>{{ folder.name }}</q-item-section>
+                <q-item-section side>
+                  <q-btn icon="mdi-delete" color="negative" flat @click.stop="deleteFolder(folder.id, folder.name)" />
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-scroll-area>
 
-          <!-- 右侧收藏夹视频展示 -->
-          <div class="col-9 row q-gutter-x-md q-gutter-y-md q-pl-lg">
-            <q-card v-for="(video, index) in selectedFolderVideos" :key="index" class="bg-grey-2" bordered>
-              <q-card-section horizontal>
-                <q-item clickable>
-                  <q-img :src="video.coverUrl" fit="fill">
-                    <template #loading>
-                      <q-spinner-dots color="primary" size="25px" />
-                    </template>
-                  </q-img>
-                </q-item>
-              </q-card-section>
-
-              <q-card-section class="bg-grey-2">
-                <q-item dense>
-                  <q-item-section>
-                    <q-item-label lines="1" class="text-center">
-                      {{ video.title }}
-                      <q-tooltip>{{ video.title }}</q-tooltip>
-                    </q-item-label>
-                  </q-item-section>
-                </q-item>
-              </q-card-section>
-            </q-card>
+          <!-- 固定在底部的新增按钮 -->
+          <div class="q-pa-sm">
+            <q-btn color="primary" label="新增收藏夹" class="full-width" icon="add" @click="showFolderDialog = true" />
           </div>
         </div>
 
-        <!-- 新增收藏夹对话框 -->
-        <q-dialog v-model="showFolderDialog" persistent>
-          <q-card style="height: 100px;">
-            <q-card-section class="q-mt-xs q-mx-xs">
-              <q-input v-model="folderName" label="收藏夹名称" outlined />
-            </q-card-section>
-            <q-card-actions align="right">
-              <q-btn flat label="取消" @click="showFolderDialog = false" />
-              <q-btn flat label="确定" @click="confirmCreateFolder" />
-            </q-card-actions>
-          </q-card>
-        </q-dialog>
-      </q-tab-panel>
-    </q-tab-panels>
-  </q-scroll-area>
+        <!-- 右侧收藏夹视频展示 -->
+
+        <div class="col-9">
+          <q-scroll-area style="height: calc(100vh - 280px); width: 100%;">
+            <div class="row q-gutter-x-md q-gutter-y-md q-pl-lg">
+              <q-card v-for="(video, index) in selectedFolderVideos" :key="index" class="bg-grey-2" bordered>
+                <q-card-section horizontal>
+                  <q-item clickable>
+                    <q-img :src="video.coverUrl" fit="fill">
+                      <template #loading>
+                        <q-spinner-dots color="primary" size="25px" />
+                      </template>
+                    </q-img>
+                  </q-item>
+                </q-card-section>
+
+                <q-card-section class="bg-grey-2">
+                  <q-item dense>
+                    <q-item-section>
+                      <q-item-label lines="1" class="text-center">
+                        {{ video.title }}
+                        <q-tooltip>{{ video.title }}</q-tooltip>
+                      </q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </q-card-section>
+              </q-card>
+            </div>
+          </q-scroll-area>
+        </div>
+      </div>
+
+      <!-- 新增收藏夹对话框 -->
+      <q-dialog v-model="showFolderDialog" persistent>
+        <q-card style="height: 100px;">
+          <q-card-section class="q-mt-xs q-mx-xs">
+            <q-input v-model="folderName" label="收藏夹名称" outlined />
+          </q-card-section>
+          <q-card-actions align="right">
+            <q-btn flat label="取消" @click="showFolderDialog = false" />
+            <q-btn flat label="确定" @click="confirmCreateFolder" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
+    </q-tab-panel>
+  </q-tab-panels>
+  <q-page-sticky position="bottom-right" :offset="[50, 50]">
+    <q-btn fab icon="add" label="上传视频" color="primary" size="lg" @click="showUploadDialog = true" />
+  </q-page-sticky>
+
+  <UploadDialogComponent v-model:showUploadDialog="showUploadDialog" />
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
 import { getUserWorks, Video, getHistory, like, dislike, getLikes, getAvatar, addFavorite, removeFavorite, getFavorites, getFavoriteVideos } from 'src/utils/axiosUtil';
-import video from 'src/boot/video';
+import { useRoute, useRouter } from 'vue-router';
+import UploadDialogComponent from "../components/UploadDialogComponent.vue";
+const route = useRoute();
+const router = useRouter();
 
 interface Folder {
   id: number;
@@ -222,6 +246,8 @@ const selectedFolderVideos = ref<Video[]>([]);
 
 const showFolderDialog = ref(false);
 const folderName = ref('');
+const showUploadDialog = ref(false);
+
 
 async function showFolderVideos(folderName: string) {
   selectedFolderVideos.value = await getFavoriteVideos(folderName);
@@ -250,19 +276,30 @@ function confirmCreateFolder() {
 }
 
 const avatar = ref('');
-const currentTab = ref('works');
+const currentTab = computed({
+  get: () => {
+    const tab = route.query.tab;
+    return (Array.isArray(tab) ? tab[0] : tab) || 'works';
+  },
+  set: (value) => {
+    // 更新路由，但不重新加载页面
+    router.replace({
+      query: { ...route.query, tab: value }
+    });
+  }
+});
 const details = ref({
   works: [] as Video[],
   histories: [] as Video[],
   likes: [] as Video[],
 });
 
-function handleClickLike(title: string, index: number) {
-  console.log(title, index);
+function handleClickLike(videoId: string, index: number) {
+  console.log(videoId, index);
   if (details.value.histories[index].isLike) {
-    dislike(title, details.value.likes[index].tags);
+    dislike(videoId);
   } else {
-    like(title, details.value.likes[index].tags);
+    like(videoId);
   }
   details.value.histories[index].isLike = !details.value.histories[index].isLike
 }

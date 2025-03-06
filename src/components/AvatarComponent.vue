@@ -17,7 +17,7 @@
       transition-hide="jump-up" @mouseenter="handleMenuEnter" @mouseleave="handleMenuLeave" :offset="[0, 5]">
 
       <q-list style="margin-top: 40px;">
-        <q-item class="text-primary" clickable v-ripple to="personal">
+        <q-item class="text-primary" clickable v-ripple :to="{ path: '/personal', query: { tab: 'works' } }">
           <q-item-section side>
             <q-icon name="mdi-account-details" color="primary" />
           </q-item-section>
@@ -28,12 +28,34 @@
             <q-icon name="chevron_right" color="primary" />
           </q-item-section>
         </q-item>
-        <q-item class="text-primary" clickable v-ripple>
+        <q-item class="text-primary" clickable v-ripple  :to="{ path: '/personal', query: { tab: 'histories' } }">
           <q-item-section side>
             <q-icon name="history" color="primary" />
           </q-item-section>
           <q-item-section>
             <q-item-label>历史记录</q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-icon name="chevron_right" color="primary" />
+          </q-item-section>
+        </q-item>
+        <q-item class="text-primary" clickable v-ripple  :to="{ path: '/personal', query: { tab: 'likes' } }">
+          <q-item-section side>
+            <q-icon name="mdi-heart" color="primary" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>我的喜欢</q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-icon name="chevron_right" color="primary" />
+          </q-item-section>
+        </q-item>
+        <q-item class="text-primary" clickable v-ripple  :to="{ path: '/personal', query: { tab: 'favorites' } }">
+          <q-item-section side>
+            <q-icon name="mdi-star" color="primary" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>我的收藏</q-item-label>
           </q-item-section>
           <q-item-section side>
             <q-icon name="chevron_right" color="primary" />
@@ -62,7 +84,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed,watch } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useUserStore } from 'src/stores/user';
 import { getAvatar } from 'src/utils/axiosUtil';
 import { useQuasar } from 'quasar';
@@ -115,8 +137,8 @@ function handleMenuLeave() {
   isInMenu.value = false;
 }
 
-function logout() {
-  logoutUser();
+async function logout() {
+  await logoutUser();
   $userStore.logout();
 }
 
@@ -145,7 +167,7 @@ watch(() => $userStore.isLogin, async (newVal) => {
   right: 140px;
   height: 45px;
   border: 1px solid $primary;
-  z-index: 9999;
+  z-index: 6001;
 }
 
 .menu-showing {

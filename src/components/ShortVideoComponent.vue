@@ -19,6 +19,7 @@
             </q-btn>
             <q-btn size="lg" color="white" text-color="primary" :icon="showStar" @click="handleClickStar()" flat dense
               round>
+              <q-badge color="yellow" floating>{{ videos[videoIndex].favoriteCount }}</q-badge>
             </q-btn>
           </div>
         </transition>
@@ -38,11 +39,12 @@
         <!-- 评论列表内容 -->
         <div class="comments-content relative-position">
 
-          <q-scroll-area style="height: 500px;">
+          <q-scroll-area style="height: 500px;" @scroll="handleScrollComment" @wheel.stop="(event:WheelEvent) => event.stopPropagation()">
             <div v-if="showEmptyTips" class="text-center text-h6">暂无评论</div>
             <CommentComponent v-for="(comment, index) in comments" :key="index" :comment="comment" :isParent="true"
-              :index="index" @repliesFetch="handleFetchReplies">
+              :index="index" @repliesFetch="handleFetchReplies" @sumbitComment="videos[videoIndex].commentCount++">
             </CommentComponent>
+            <div v-if="showCommentEnd && !showEmptyTips" class="text-center text-h8">没有更多评论了...</div>
           </q-scroll-area>
           <!-- 评论输入框 -->
           <q-item>
@@ -82,7 +84,7 @@ import lang_zhcn from "video.js/dist/lang/zh-CN.json"
 import videojs from 'video.js'
 import { Video, Comment, addHistory, like, dislike, recommend, removeVideoFromFavorite, addVideoToFavorite, getHotComments, getNewComments, addNewComment } from 'src/utils/axiosUtil';
 import Player from 'video.js/dist/types/player';
-import { useQuasar } from 'quasar';
+import { useQuasar, debounce } from 'quasar';
 import { useUserStore } from 'src/stores/user';
 import CommentComponent from './CommentComponent.vue';
 
@@ -101,7 +103,7 @@ const showTitle = ref(true);
 const showingVideoActions = ref(true);
 const fullscreenStyle = ref('')
 
-const showLike = computed(() => videos.value[videoIndex.value].isLike ? 'mdi-thumb-up' : 'mdi-thumb-up-outline')
+const showLike = computed(() => videos.value[videoIndex.value].isLike ? 'mdi-heart' : 'mdi-heart-outline')
 const showComments = ref(false)
 const showStar = computed(() => videos.value[videoIndex.value].isFavorite ? 'mdi-star' : 'mdi-star-outline')
 const favoriteName = ref('默认收藏夹')
@@ -160,34 +162,75 @@ const commentBoxLoading = ref(false);
 
 async function handleClickComment() {
   showComments.value = !showComments.value;
+  showCommentEnd.value = false;
   if (showComments.value) {
     await fetchComments();
   }
 }
 
+const handleScrollComment = debounce(async ({ verticalPercentage }: any) => {
+  if (verticalPercentage > 0.9) {
+    await concatHotComments();
+  }
+}, 500);
+
+const showCommentEnd = ref(false);
 async function fetchComments() {
   commentBoxLoading.value = true;
-  comments.value = await getHotComments(videos.value[videoIndex.value].videoId, 0);
+  const newComments = await getHotComments(videos.value[videoIndex.value].videoId, 0);
+
+  if (newComments && newComments.length > 0) {
+    comments.value = newComments;
+  }else{
+    comments.value = [];
+  }
+
   console.log(comments.value);
-  showEmptyTips.value = comments.value === null || comments.value?.length === 0;
+  showEmptyTips.value = !(comments.value && comments.value.length > 0)
   commentBoxLoading.value = false;
+}
+
+async function concatHotComments() {
+  const newComments = await getHotComments(videos.value[videoIndex.value].videoId, comments.value.length);
+  console.log(newComments);
+  if (newComments && newComments.length > 0) {
+    comments.value = comments.value.concat(newComments);
+    showCommentEnd.value = false;
+  }else{
+    showCommentEnd.value = true;
+  }
 }
 
 const newComment = ref<string>('');
 const commentLoading = ref(false);
 
 async function addComment() {
+  if(!$userStore.isLogin){
+    $q.notify({
+      type: "warning",
+      message: "请先登录"
+    })
+    newComment.value = '';
+    return;
+  }
   if (!newComment.value.trim()) {
     return;
   }
   commentLoading.value = true;
-  await addNewComment(videos.value[videoIndex.value].videoId, newComment.value)
+  await addNewComment(videos.value[videoIndex.value].videoId, newComment.value);
+  await fetchComments();
+  videos.value[videoIndex.value].commentCount++;
   newComment.value = '';
   commentLoading.value = false;
 }
 
 function handleFetchReplies(payload: { replies: Comment[], index: number }) {
-  comments.value[payload.index].replies = payload.replies;
+  // 使用concat方法拼接数组
+  if (comments.value[payload.index].replies) {
+    comments.value[payload.index].replies = comments.value[payload.index].replies?.concat(payload.replies);
+  } else {
+    comments.value[payload.index].replies = payload.replies;
+  }
 }
 
 function handleClickStar() {
@@ -199,9 +242,11 @@ function handleClickStar() {
     return;
   }
   if (videos.value[videoIndex.value].isFavorite) {
+    videos.value[videoIndex.value].favoriteCount--;
     removeVideoFromFavorite(favoriteName.value, videos.value[videoIndex.value].videoId)
   } else {
     addVideoToFavorite(favoriteName.value, videos.value[videoIndex.value].videoId)
+    videos.value[videoIndex.value].favoriteCount++;
   }
   videos.value[videoIndex.value].isFavorite = !videos.value[videoIndex.value].isFavorite;
 }
@@ -231,7 +276,9 @@ async function getRecommend() {
 }
 
 async function nextVideo() {
-  await getRecommend();
+  if (videoIndex.value == videoTotal - 1) {
+    await getRecommend();
+  }
   videoAnimation.value = 'animate__slideInUp';
   diableSwitch.value = true;
   // 等待动画结束后移除类名
@@ -258,16 +305,15 @@ async function prevVideo() {
 
   if (videoIndex.value > 0) {
     videoIndex.value--;
-  } else {
+  }
+  if (videoIndex.value == 0) {
     disableTopSwitch.value = true;
   }
   player.src(options.value.sources[videoIndex.value].src);
-  if(showComments.value){
+  if (showComments.value) {
     await fetchComments();
   }
 }
-
-
 
 async function initPlayer() {
   await getRecommend();
@@ -299,20 +345,37 @@ async function initPlayer() {
   player.src(options.value.sources[videoIndex.value].src);
 }
 
+const handlePageScroll = debounce((event: WheelEvent) => {
+  if (event.deltaY > 0) {
+    nextVideo();
+  } else {
+    if (disableTopSwitch.value) {
+      return;
+    }
+    console.log(videoIndex.value);
+    prevVideo();
+  }
+}, 500)
+
 onMounted(async () => {
+  videoLoading.value = true;
   await initPlayer();
+  videoLoading.value = false;
+  window.addEventListener('wheel', handlePageScroll);
 });
 
 onUnmounted(() => {
   if (player) {
     player.dispose();
   }
+  window.removeEventListener('wheel', handlePageScroll);
 });
 </script>
 
 <style lang="scss">
 .container {
   height: 750px;
+  width: 100%;
 }
 
 .video-box {

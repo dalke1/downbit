@@ -49,9 +49,13 @@
       <q-slide-transition>
         <div v-show="showReplies">
           <CommentComponent v-for="(reply, index) in comment.replies" :key="index" :comment="reply" :isParent="false"
-            :parentId="comment.id" @refreshReplies="fetchtReplies" />
+            :parentId="comment.id" @refreshReplies="fetchtReplies" @submitCommentPop="handleReplyPop" />
         </div>
       </q-slide-transition>
+    </q-item-section>
+    <q-item-section
+      v-if="isParent && showReplies && comment.replyCount > (comment.replies ? comment.replies.length : 0)">
+      <q-btn flat dense color="primary" @click="fetchtReplies" label="查看更多回复" />
     </q-item-section>
     <q-item-section>
       <div v-show="showInput">
@@ -59,7 +63,7 @@
           <q-item>
             <q-item-section avatar top>
               <q-avatar size="28px">
-                <img :src="$userStore.avatar" />
+                <q-img :src="replyAvatar" spinner-size="20px" spinner-color="primary"></q-img>
               </q-avatar>
             </q-item-section>
             <q-item-section>
@@ -82,8 +86,9 @@
 <script setup lang="ts">
 import { useQuasar } from 'quasar';
 import { Comment, reply, likeComment, dislikeComment, getReplies } from 'src/utils/axiosUtil';
-import { ref } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useUserStore } from 'src/stores/user';
+import { emitter } from 'src/utils/commonUtil';
 
 const $q = useQuasar();
 const $userStore = useUserStore();
@@ -96,7 +101,9 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (event: 'repliesFetch', payload: { replies: Comment[], index: number | any }): void,
-  (event: 'refreshReplies'): void
+  (event: 'refreshReplies'): void,
+  (event: 'sumbitComment'): void,
+  (event: "submitCommentPop"): void
 }>();
 
 function toggleLike(comment: Comment) {
@@ -121,6 +128,13 @@ const showReplies = ref(false);
 const showInput = ref(false);
 const replyContent = ref('');
 const replyTo = ref('');
+const replyAvatar = computed(() => {
+  if ($userStore.isLogin) {
+    return $userStore.avatar;
+  } else {
+    return "https://cdn.quasar.dev/img/boy-avatar.png";
+  }
+});
 
 async function handleClickShowReplies() {
   if (!showReplies.value && (props.comment.replies === undefined || props.comment.replies.length === 0)) {
@@ -134,7 +148,7 @@ function showReplyInput() {
     cancelReply();
     return;
   }
-
+  emitter.emit('closeOtherReplies', props.comment.id);
   showInput.value = true;
   replyTo.value = props.comment.nickname;
 }
@@ -146,7 +160,11 @@ function cancelReply() {
 }
 
 async function fetchtReplies() {
-  let replies: Comment[] = await getReplies(props.comment.id);
+  let length = props.comment.replies ? props.comment.replies.length : 0;
+  let replies: Comment[] = await getReplies(props.comment.id, length);
+  if (!replies || replies.length === 0) {
+    return;
+  }
   console.log(replies);
   emit('repliesFetch', { replies, index: props.index });
 }
@@ -154,6 +172,14 @@ async function fetchtReplies() {
 const replyLoading = ref(false);
 
 async function submitReply() {
+  if (!$userStore.isLogin) {
+    $q.notify({
+      type: 'negative',
+      message: '请先登录'
+    });
+    cancelReply();
+    return;
+  }
   if (!replyContent.value.trim()) {
     return;
   }
@@ -167,14 +193,34 @@ async function submitReply() {
   await reply(props.comment.videoId, replyContent.value, replyTo.value, replyId);
   if (props.isParent) {
     fetchtReplies();
+    emit('sumbitComment');
+    props.comment.replyCount++;
   } else {
     emit('refreshReplies');
+    emit('submitCommentPop');
   }
   // 清空输入框并隐藏
   replyLoading.value = false;
   cancelReply();
 }
 
+function handleReplyPop() {
+  props.comment.replyCount++;
+  emit('sumbitComment');
+}
+
+
+onMounted(() => {
+  emitter.on('closeOtherReplies', (currentId) => {
+    if (currentId !== props.comment.id) {
+      cancelReply();
+    }
+  });
+});
+
+onUnmounted(() => {
+  emitter.off('closeOtherReplies');
+});
 </script>
 <style lang="scss">
 .comment-avatar {

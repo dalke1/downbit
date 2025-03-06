@@ -30,16 +30,6 @@ const links = ref([
     icon: "mdi-fire",
     text: "推荐",
     to: 'recommend',
-  },
-  {
-    icon: "mdi-cogs",
-    text: "设置",
-    to: 'home'
-  },
-  {
-    icon: "mdi-help",
-    text: "帮助",
-    to: 'home'
   }
 ])
 </script>

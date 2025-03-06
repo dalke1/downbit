@@ -103,6 +103,7 @@ module.exports = configure(function (/* ctx */) {
           position: 'top',
           progress: true,
           timeout: 5000,
+          zIndex:9999
         }
       },
       cssAddon: true,
